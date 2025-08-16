@@ -1,0 +1,99 @@
+.command-management {
+  padding: 2rem;
+}
+
+.command-title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.command-title a {
+  font-size: 1rem;
+  margin-left: 1rem;
+  text-decoration: none;
+  color: #007bff;
+}
+
+.add-command-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.add-command-form input {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-command-form button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #28a745;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.command-list-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.command-list-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.command-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.command-details {
+  flex-grow: 1;
+}
+
+.command-text {
+  font-weight: bold;
+  font-family: monospace;
+}
+
+.command-message {
+  color: #555;
+  margin-left: 1rem;
+}
+
+.command-actions button {
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #333;
+  background-color: #f0f2f5;
+  cursor: pointer;
+}
+
+.command-actions .delete-button {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.command-actions .delete-button:hover {
+  background-color: #dc3545;
+  color: white;
+}
