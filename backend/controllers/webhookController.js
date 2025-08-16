@@ -1,4 +1,4 @@
-const Bot = require('../models/Bot');
+const { Bot, Command } = require('../models');
 const { Telegraf } = require('telegraf');
 
 exports.handleUpdate = async (req, res) => {
@@ -6,14 +6,11 @@ exports.handleUpdate = async (req, res) => {
   const update = req.body;
 
   try {
-    const bot = await Bot.findById(botId);
+    const bot = await Bot.findOne({ where: { id: botId } });
     if (!bot) {
-      // Bot not found, but we should still send a 200 to Telegram
-      // to prevent it from resending the update.
       return res.sendStatus(200);
     }
 
-    // Extract command from the update
     if (update.message && update.message.text) {
       const text = update.message.text;
       const commandMatch = text.match(/^\/(\w+)/);
@@ -21,23 +18,20 @@ exports.handleUpdate = async (req, res) => {
       if (commandMatch) {
         const commandStr = "/" + commandMatch[1];
 
-        // Find the custom command in our database
-        const customCommand = bot.commands.find(c => c.command === commandStr);
+        const customCommand = await Command.findOne({
+          where: { command: commandStr, botId: bot.id },
+        });
 
         if (customCommand) {
-          // If a custom command is found, use Telegraf to reply
           const telegrafBot = new Telegraf(bot.token);
           await telegrafBot.telegram.sendMessage(update.message.chat.id, customCommand.message);
         }
       }
     }
 
-    // Always respond to Telegram with a 200 OK
     res.sendStatus(200);
-  } catch (error)
-  {
+  } catch (error) {
     console.error(`Webhook error for bot ${botId}:`, error);
-    // Even if there's an error, send a 200 to Telegram
     res.sendStatus(200);
   }
 };

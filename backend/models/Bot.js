@@ -1,35 +1,21 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
-const botSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User',
-  },
+const Bot = sequelize.define('Bot', {
   token: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
     unique: true,
   },
   botId: {
-    type: Number,
-    required: true,
+    type: DataTypes.INTEGER,
+    allowNull: false,
     unique: true,
   },
   botUsername: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
-  commands: [
-    {
-      command: { type: String, required: true },
-      message: { type: String, required: true },
-    },
-  ],
-}, {
-  timestamps: true,
 });
-
-const Bot = mongoose.model('Bot', botSchema);
 
 module.exports = Bot;

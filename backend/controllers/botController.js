@@ -1,4 +1,4 @@
-const Bot = require('../models/Bot');
+const { Bot, Command } = require('../models');
 const { Telegraf } = require('telegraf');
 
 // @desc    Add a new bot
@@ -6,37 +6,32 @@ const { Telegraf } = require('telegraf');
 // @access  Private
 exports.addBot = async (req, res) => {
   const { token } = req.body;
-  const user = req.user._id;
+  const userId = req.user.id;
 
   if (!token) {
     return res.status(400).json({ message: 'Bot token is required' });
   }
 
   try {
-    // Verify token with Telegram API
     const tempBot = new Telegraf(token);
     const botInfo = await tempBot.telegram.getMe();
 
-    // Check if bot already exists
-    const botExists = await Bot.findOne({ botId: botInfo.id });
+    const botExists = await Bot.findOne({ where: { botId: botInfo.id } });
     if (botExists) {
       return res.status(400).json({ message: 'Bot already added' });
     }
 
-    const newBot = new Bot({
-      user,
+    const newBot = await Bot.create({
+      userId,
       token,
       botId: botInfo.id,
       botUsername: botInfo.username,
     });
 
-    const savedBot = await newBot.save();
-
-    // Set webhook
-    const webhookUrl = `${process.env.WEBHOOK_DOMAIN}/api/webhook/${savedBot.id}`;
+    const webhookUrl = `${process.env.WEBHOOK_DOMAIN}/api/webhook/${newBot.id}`;
     await tempBot.telegram.setWebhook(webhookUrl);
 
-    res.status(201).json(savedBot);
+    res.status(201).json(newBot);
   } catch (error) {
     console.error(error);
     if (error.response && error.response.description === 'Unauthorized') {
@@ -51,10 +46,13 @@ exports.addBot = async (req, res) => {
 // @access  Private
 exports.getBots = async (req, res) => {
   try {
-    const bots = await Bot.find({ user: req.user._id });
+    const bots = await Bot.findAll({
+      where: { userId: req.user.id },
+      include: [{ model: Command, as: 'Commands' }], // Sequelize defaults to plural model name
+    });
     res.json(bots);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -63,25 +61,24 @@ exports.getBots = async (req, res) => {
 // @access  Private
 exports.deleteBot = async (req, res) => {
   try {
-    const bot = await Bot.findById(req.params.id);
+    const bot = await Bot.findOne({ where: { id: req.params.id } });
 
     if (!bot) {
       return res.status(404).json({ message: 'Bot not found' });
     }
 
-    // Check if the bot belongs to the user
-    if (bot.user.toString() !== req.user._id.toString()) {
+    if (bot.userId !== req.user.id) {
       return res.status(401).json({ message: 'Not authorized' });
     }
-
-    await bot.deleteOne();
 
     // Optional: remove webhook from Telegram
     // const tempBot = new Telegraf(bot.token);
     // await tempBot.telegram.deleteWebhook();
 
+    await bot.destroy();
+
     res.json({ message: 'Bot removed' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
