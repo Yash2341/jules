@@ -1,13 +1,13 @@
-const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config(); // Load environment variables first
+
+const express = require('express');
 const cors = require('cors');
 const { sequelize, syncModels } = require('./models');
 
 const authRoutes = require('./routes/authRoutes');
 const botRoutes = require('./routes/botRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
-
-dotenv.config();
 
 const app = express();
 
